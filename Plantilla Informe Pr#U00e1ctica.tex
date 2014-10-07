@@ -1,0 +1,439 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Plantilla para informe de práctica, DISC, UCN.
+% Original por Felipe Narvaez, versión modificada por Brian Keith.
+% Compilar dos veces, por razones de que el compilador crea un archivo 
+% para la tabla de contenido, para que este funcione compilar una vez más.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[oneside,12pt, letterpaper, titlepage]{book}
+% Esto es para poder escribir acentos directamente:
+\usepackage[utf8x]{inputenc}
+% Esto es para que el LaTeX sepa que el texto esta en español:
+\usepackage[spanish,activeacute,es-lcroman]{babel}
+% Paquetes de la AMS:
+\usepackage{amsmath, amsthm, amsfonts}
+%Otros paquetes necesarios.
+\usepackage{graphicx}
+\usepackage[tc]{titlepic}
+\usepackage{fancyhdr}
+\usepackage[T1]{fontenc}
+\usepackage{titlesec}
+\usepackage{float}
+\usepackage{pslatex}  %Esto utiliza la fuente Times Roman (Casi indistinguible de Times New Roman)
+\usepackage[titletoc]{appendix} %Este paquete para los anexos.
+\usepackage{setspace} %Para espacio de 1.5
+\usepackage{listings} %Código C#
+\usepackage{multirow} %Tablas con fusiones de fila.
+\usepackage{rotating}
+\usepackage[numbers]{natbib}
+
+\usepackage[none]{hyphenat} % Evita que las palabras sean cortadas
+
+%--------------------------------------------------------------------------
+% Defino un nuevo comando para agregar espacios de 20 puntos, para utilizar
+% 20 espacios solo utilizar las palabras \hsp
+\newcommand{\hsp}{\hspace{2pt}}
+%--------------------------------------------------------------------------
+% Defino el nuevo titulo para capítulos con números romanos, como por
+% ejemplo:
+% I Introducción.
+\renewcommand{\thechapter}{\Roman{chapter}}
+%--------------------------------------------------------------------------
+% Defino el nuevo titulo para subsecciones de capítulos con números árabes
+% como por ejemplo:
+% 1.1 Antecedentes generales 
+\renewcommand{\thesection}{\arabic{chapter}.\arabic{section}}
+%--------------------------------------------------------------------------
+\addto\captionsspanish{% Replace "english" with the language you use
+  \renewcommand{\contentsname}%
+    {Índice General}%
+}
+%--------------------------------------------------------------------------
+% Defino el nuevo titulo para figuras de capitulos con numeros arabes
+% como por ejemplo:
+% 1.1 Antecedentes generales 
+\renewcommand{\thefigure}{\arabic{chapter}.\arabic{figure}}
+%--------------------------------------------------------------------------
+\renewcommand{\thetable}{\arabic{chapter}.\arabic{table}}
+%--------------------------------------------------------------------------
+\titleformat*{\section}{\fontsize{12}{12}\bfseries}
+\titleformat*{\subsection}{\fontsize{12}{12}\bfseries}
+\titleformat*{\subsubsection}{\fontsize{12}{12}\bfseries}
+%--------------------------------------------------------------------------
+%Margenes de pagina.
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+%--------------------------------------------------------------------------
+%Que aparezca la bibliografía en el índice.
+%\usepackage{tocbibind}
+%--------------------------------------------------------------------------
+%Numeros de pagina en posiciones correctas.
+\usepackage{fancyhdr} 
+\pagestyle{myheadings}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[L]{}
+\fancyhead[R]{\nouppercase{\thepage}}
+\fancyfoot[C]{}
+%--------------------------------------------------------------------------
+\usepackage{afterpage}
+\usepackage{textcase}
+\usepackage{enumitem}
+%Listas ordenadas
+\usepackage{datatool}
+\newcommand{\sortitem}[1]{%
+  \DTLnewrow{list}% Create a new entry
+  \DTLnewdbentry{list}{description}{#1}% Add entry as description
+}
+\newenvironment{sortedlist}{%
+  \DTLifdbexists{list}{\DTLcleardb{list}}{\DTLnewdb{list}}% Create new/discard old list
+}{%
+  \DTLsort{description}{list}% Sort list
+  \begin{itemize}[leftmargin=*,label={}]%
+    \DTLforeach*{list}{\theDesc=description}{%
+      \item \theDesc}% Print each item
+  \end{itemize}%
+}
+%Modificaciones a la tabla de contenidos.
+\makeatletter
+%Esto se encarga que los capítulos tengan puntos en su tab leader.
+\renewcommand*\l@chapter[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \vskip 1.0em \@plus\p@
+    \setlength\@tempdima{1.5em}%
+    \begingroup
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode \bfseries
+      \advance\leftskip\@tempdima
+      \hskip -\leftskip 
+      \@pnum@font #1\nobreak
+      \xleaders\hbox{$\m@th
+        \mkern \@dotsep mu\hbox{.}\mkern \@dotsep
+        mu$}\hfill%
+      \nobreak\hb@xt@\@pnumwidth{\hss\@pnum@font #2}\par
+      \penalty\@highpenalty
+      %Esto le quita la negrita.
+    \endgroup
+  \fi}
+%Esto renueva los comandos asociados a los otros elementos de la tabla de contenidos para que todo quede bien.
+\renewcommand*\l@section{\@dottedtocline{1}{1.5em}{2.3em}}
+\renewcommand*\l@subsection{\@dottedtocline{2}{3.8em}{3.2em}}
+\renewcommand*\l@subsubsection{\@dottedtocline{3}{7.0em}{4.1em}}
+\renewcommand*\l@paragraph{\@dottedtocline{4}{10em}{5em}}
+\renewcommand*\l@subparagraph{\@dottedtocline{5}{12em}{6em}}
+%Esto se encarga de quitarle la negrita a la frontmatter.
+\g@addto@macro{\frontmatter}{\addtocontents{toc}{\protect\def\protect\@pnum@font{\normalfont}}}
+\g@addto@macro{\mainmatter}{\addtocontents{toc}{\protect\def\protect\@pnum@font{\bfseries}}}
+\g@addto@macro{\backmatter}{\addtocontents{toc}{\protect\def\protect\@pnum@font{\bfseries}}}
+\makeatother
+%--------------------------------------------------------------------------
+% Comienza el documento
+\begin{document}
+\sloppy %Como \usepackage[none]{hyphenat} evita que las palabras se corten, esta línea realiza la corrección al texto justificado.
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\listtablename}{Índice de Tablas}
+\renewcommand{\listfigurename}{Índice de Figuras}
+\setlength{\parindent}{0pt}
+
+\onehalfspace
+
+\begin{titlepage}
+\centering
+\vspace*{-0.4in}
+%--------------------------------------------------------------------------
+%Imagen o logotipo de la UCN
+\includegraphics[scale=0.3]{./images/u.jpg}\\
+{\fontsize{14}{14}\selectfont
+UNIVERSIDAD CATÓLICA DEL NORTE\\
+FACULTAD DE INGENIERÍA Y CIENCIAS GEOLÓGICAS\\
+DEPARTAMENTO DE INGENIERÍA DE SISTEMAS Y COMPUTACIÓN\\}
+\vspace{2.3in}
+%--------------------------------------------------------------------------
+% Titulo del documento
+{\fontsize{14}{14}\bfseries Informe Práctica Pre Profesional II\\}
+%--------------------------------------------------------------------------
+\vspace*{2in}
+%--------------------------------------------------------------------------
+%Datos Personales y/o profesores, alineados a la derecha de la hoja
+\begin{flushleft}
+\setlength{\leftskip}{7.2cm}
+\fontsize{12}{12}\selectfont
+Nombre Alumno: <Tú nombre completo>\\
+Rut: <RUT>\\
+Carrera: Ingeniería Civil en Computación e Informática\\
+Nivel: <En número arabe>\\
+Nombre Empresa: <Empresa>\\
+Ciudad: Antofagasta\\
+Fecha inicio: <Fecha>\\
+Fecha término: <Fecha>\\
+\end{flushleft}
+\vspace*{0.5in}
+Antofagasta\\
+Septiembre, 2014
+
+\end{titlepage}
+
+%--------------------------------------------------------------------------
+\titleformat{\chapter}[hang]
+{\fontsize{12}{12}\bfseries\centering}
+{\Roman{chapter}{.}\hsp}{0pt}{\fontsize{12}{12}\bfseries}
+\titlespacing{\chapter}{0cm}{-13.6pt}{0.21cm}[0cm]
+%--------------------------------------------------------------------------
+%Capitulos sin enumeracion, número de pagina en romano
+\frontmatter
+\setcounter{page}{2}
+%--------------------------------------------------------------------------
+% Esta es la TABLA DE CONTENIDO.
+\tableofcontents
+\addtocontents{toc}{~\hfill\textbf{Página}\par}
+%DESCOMENTAR LA LINEA SIGUIENTE SI ES QUE LA TABLA DE CONTENIDOS TIENE MAS DE UNA PAGINA.
+%\addtocontents{toc}{\protect\afterpage{~\hfill\textbf{Página}\par\medskip}}
+\thispagestyle{plain}
+
+%--------------------------------------------------------------------------
+% Esta es la Tabla de Figuras
+\listoffigures % Índice de figuras
+\addtocontents{lof}{~\hfill\textbf{Página}\par}
+\addcontentsline{toc}{chapter}{Índice de Figuras} % para que aparezca en la tabla de contenidos
+
+%--------------------------------------------------------------------------
+% Esta es el indice de Tablas
+\listoftables % indice de tablas
+\addtocontents{lot}{~\hfill\textbf{Página}\par}
+\addcontentsline{toc}{chapter}{Índice de Tablas} % para que aparezca en el indice de contenidos
+
+\chapter{Nomenclatura}
+\begin{sortedlist}
+\sortitem{RCM (Reliability Centered Maintenance)}
+\sortitem{UML (Unified Modeling Language)}
+\end{sortedlist}
+
+\newpage
+\chapter{Glosario}
+\begin{sortedlist}
+\sortitem{Modelo Cascada:} Modelo de desarrollo de software en que las etapas se efectúan en orden lineal, es decir, primero los requerimientos, luego el diseño y finalmente la implementación 
+\sortitem{Método Simplex:} Algoritmo iterativo basado en puntos extremos para resolver modelos de programación lineal
+\end{sortedlist}
+
+\newpage
+\chapter{Resumen}
+Se debe considerar:
+\begin{itemize}
+\item Sintetiza los aspectos más relevantes del informe de práctica 
+\item Se hace referencia a los aspectos esenciales: objetivos, justificación del trabajo realizado, metodología y recursos o herramientas empleadas, supuestos, resultados (productos y beneficios) y las conclusiones más importantes logradas 
+\item Su redacción no debe ser solo descriptiva, sino basarse en los aspectos esenciales mencionados en el párrafo anterior 
+\end{itemize}
+Ejemplos de redacción: 
+\begin{itemize}
+\item Correcto: ``...del estudio de mercado realizado se concluyó que el precio debe estar dentro de cierto rango, entre un 2 y 3\% del precio base''
+\item Incorrecto: ``...se hizo un estudio de mercado, luego se procede a analizar la cadena de distribución''
+\end{itemize}
+Su extensión debe ser una página completa.
+%--------------------------------------------------------------------------
+%Capitulos normales con enumeracion y con número de pagina arabes
+\mainmatter
+%--------------------------------------------------------------------------
+% Defino el formato de titulo para el capitulo, numero romano y el titulo
+% del capitulo separado con una linea de color gris, de esta forma:
+% I | Introducción 
+\titleformat{\chapter}[hang]
+{\fontsize{12}{12}\bfseries}
+{\Roman{chapter}{.}\hsp}{0pt}{\fontsize{12}{12}\bfseries}
+\titlespacing{\chapter}{0cm}{-13.6pt}{0.21cm}[0cm]
+%--------------------------------------------------------------------------
+% TIP
+% Para las secciones pueden probar como
+% \section[nombre corto]{Nombre largo}
+% El nombre corto aparecera en el indice de contenido
+% el nombre largo aparecera como titulo de la sección
+% Este tip tambien sirve para los chapters.
+%--------------------------------------------------------------------------
+
+\chapter[Introducción]{INTRODUCCIÓN}
+
+Considerar lo siguiente: 
+\begin{itemize}
+    \item Debe contener la visión de contexto, el propósito u objetivo general del trabajo realizado durante la práctica, alcance, resultados esperados (beneficios y productos) del trabajo, y la situación previa de ser necesario 
+    
+    \item Su extensión es entre 2 y 5 páginas 
+    
+    \item Se recomiendan los siguientes contenidos para este capítulo: 
+    \begin{itemize}
+        \item Breve descripción de la organización y entorno: clientes, productos, participación en el mercado, tamaño, descripción de la industria a la que pertenece, organigrama, etc. 
+
+        \item Breve descripción del departamento o lugar de trabajo: propósito del departamento, relación con los objetivos institucionales, metas, tamaño, nivel de profesionalismo, rol de los ingenieros y de los otros profesionales, etc. 
+
+        \item Breve descripción del grupo de trabajo.
+
+        \item Breve descripción del proceso productivo (bienes o servicios) de la empresa, con mayor detalle en la medida que esté relacionado con los trabajos asignados.
+
+        \item Cuantificación del nivel de actividad o productividad del área más cercana a su lugar de trabajo y también de la empresa.
+
+        \item Descripción general del trabajo realizado, poniendo énfasis en los problemas existentes que se pretendieron solucionar con la práctica.
+    \end{itemize}
+\end{itemize}
+
+
+\chapter[Trabajo Realizado]{TRABAJO REALIZADO}
+
+Considerar lo siguiente: 
+\begin{itemize}
+    \item Tiene entre 10 y 15 páginas 
+    \item No necesariamente considera un solo capítulo del informe 
+    \item En la eventualidad de existir detalle de antecedentes (datos, diagramas, información complementaria), se debe colocar lo relevante en el cuerpo principal y el resto en anexos 
+
+    \item Se sugieren los siguientes contenidos: 
+
+    \begin{itemize}
+        \item Descripción de los problemas abordados durante la práctica. Los problemas descritos deben ser justificados, de manera que sean la verdadera causa que da origen al trabajo realizado y que este último realmente contribuye a su solución 
+        \item Breve descripción y análisis de las alternativas de solución contempladas 
+        \item Describir detalladamente la solución propuesta del problema, incluyendo juicios fundamentados 
+        \item Describir las actividades realizadas por el estudiante, por sobre el grupo de trabajo. De ser necesario, por motivos de una mejor comprensión del informe, es posible incluir una breve descripción de las tareas del grupo. Las actividades deben ser clara y suficientemente descritas, incluyendo evidencias asociadas al trabajo de ingeniería, por ejemplo, modelos, diagramas, descripción de procesos, gráficos y tablas de datos, etc. 
+        \item Mostrar los resultados obtenidos 
+        \item Si corresponde, se deben analizar (confección de elementos de análisis, discusión y juicios asociados) los resultados obtenidos según la metodología utilizada, comparándolos con los esperados (productos y beneficios) y discutiendo las causas de las brechas
+    \end{itemize}
+\end{itemize}
+
+
+\section{Tips para usar imagenes y tablas en \LaTeX}
+En la imagen \ref{fig:logo} ...
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.3]{./images/u.jpg}
+    \caption{Logo Universidad Catolica del Norte}
+    \label{fig:logo}
+\end{figure}
+
+
+En la tabla \ref{table:referencia} ...
+\begin{table}[H]
+\centering
+\begin{tabular}{lccc}
+\hline
+Header 1            & Header 2 & Header 3 \\ \hline
+row 1               &          &          \\ \hline
+\end{tabular}
+\caption{Descripción de la tabla}
+\label{table:referencia}
+\end{table}
+\section{Tips para usar viñetas.}
+
+Ejemplo de viñetas enumeradas
+\begin{enumerate}
+\item ID del Requerimiento.
+\item Prioridad.
+\item Pasos realizados.
+\item Datos ingresados.
+\item Descripción de la salida esperada.
+\item Descripción de la salida real.
+\item Fecha del reporte.
+\item Fecha de entrega de la solución.
+\end{enumerate}
+
+Ejemplo viñetas punteadas.
+\begin{itemize}
+\item ID del Requerimiento.
+\item Prioridad.
+\item Pasos realizados.
+\item Datos ingresados.
+\item Descripción de la salida esperada.
+\item Descripción de la salida real.
+\item Fecha del reporte.
+\item Fecha de entrega de la solución.
+\end{itemize}
+
+\chapter[Conclusiones]{CONCLUSIONES}
+Considera lo siguiente:
+\begin{itemize}
+    \item Se extiende entre 1 y 3 páginas 
+    \item Deben existir tanto conclusiones del trabajo realizado así como conclusiones personales 
+    \item Sugerencias de conclusiones del trabajo realizado, debiendo ser adecuadamente fundamentadas: 
+    \begin{itemize}
+        \item Comentarios serios y fundados del lugar de trabajo 
+        \item Problemas encontrados 
+        \item Comentarios sobre los métodos empleados para resolver los problemas 
+        \item Juicios relevantes 
+        \item Trabajo futuro o proyecciones 
+    \end{itemize}
+
+    \item Sugerencias a considerar en las conclusiones personales: 
+    \begin{itemize}
+        \item Experiencia ganada 
+        \item Competencias transversales puestas en práctica, con visión autocrítica: puntualidad, trabajo en equipo, comunicación oral y escrita, etc
+        \item Comentarios de su preparación como estudiante: 
+        \begin{itemize}
+            \item Herramientas, modelos, técnicas o metodologías que domina y que puso en práctica 
+            \item Herramientas, modelos, técnicas o metodologías que debió aprender
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\chapter{Bibliografia} %Eliminar esta sección solo es explicativa
+Eliminar esta sección solo es explicativa
+Se utilizarán las normas APA (American Psychological Association) para la bibliografía\\  
+
+(Degelman, 2009). Se deben considerar dos aspectos: 
+\begin{itemize}
+    \item ¿Cómo se escribe la bibliografía en el documento?
+    \item ¿Cómo se hace referencia a una bibliografía específica?
+\end{itemize}
+
+\section{¿Cómo se escribe la bibliografía en el documento?}
+Se deben tener en cuenta los siguientes aspectos: 
+\begin{itemize}
+    \item Se incluye en un capítulo sin numeración que sigue a las conclusiones y antecede a los anexos, si es que existiesen
+    \item El nombre del capítulo se escribe en mayúscula 
+    \item Debe estar ordenada alfabéticamente, sin hacer subdivisiones por tipo de bibliografía (libros, revistas, etc.) 
+    \item Cada bibliografía especificada debe ser referenciada en el informe 
+    \item Para cada bibliografía especificada, todas las líneas, después de la primera, deben tener una sangría de 1,25 cm. (sangría francesa)
+\end{itemize}
+
+
+\renewcommand\bibname{BIBLIOGRAFÍA}
+\bibliographystyle{plain}
+
+\def\bibindent{1cm}
+\begin{thebibliography}{99\kern\bibindent}%Si tienes más de 99 editar este número a la cantidad de referencias que tengas.
+\makeatletter
+\let\old@biblabel\@biblabel
+\def\@biblabel#1{{}\kern\bibindent} %En el { } agregar \old@biblabel{#1}
+\let\old@bibitem\bibitem
+\def\bibitem#1{\old@bibitem{#1}\leavevmode\kern-\bibindent\kern-2.1em}
+\makeatother
+    
+
+    \bibitem{1} Law, A. M. y Kelton W. D. (2000). \textit{Simulation Modeling and Analysis} (3 edicion). Boston, USA: McGraw-Hill.
+
+\end{thebibliography}
+\addcontentsline{toc}{chapter}{Bibliografía}
+
+
+%\mainmatter %Esto hace que los anexos SI tengan numeros de cap.
+%Se utilizan letras en vez de numeros.
+\titleformat{\chapter}[hang]
+{\fontsize{12}{12}\bfseries}
+{ANEXO\hsp\Alph{chapter}{.}\hsp}{0pt}{\fontsize{12}{12}\bfseries}
+\titlespacing{\chapter}{0cm}{-13.6pt}{0.21cm}[0cm]
+
+%Se utilizan letras en vez de numeros.
+\renewcommand{\thesection}{\Alph{chapter}.\arabic{section}}
+\renewcommand{\thefigure}{\Alph{chapter}.\arabic{figure}}
+\renewcommand{\thetable}{\Alph{chapter}.\arabic{table}}
+
+%Se inician los apendices.
+\begin{appendices}
+\renewcommand\appendixname{Anexo}
+\chapter[Anexo]{Anexo}
+Considerar los siguientes aspectos:
+
+\begin{itemize}
+    \item Se coloca en un anexo el detalle de los cálculos, tablas numéricas, formatos de archivos, códigos de programas, pantallas y listados, protocolos de experimentaciones y cualquier otro material directamente utilizado en el desarrollo de la práctica pre-profesional, que no se estime conveniente insertar en el cuerpo del informe por razones de claridad y continuidad 
+    \item Cada anexo se numera con letras mayúsculas del alfabeto castellano 
+    \item Cada anexo debe ser referenciado en el cuerpo principal 
+    \item Las páginas de los anexos se numeran de la misma forma que las del cuerpo principal, siguiendo el correlativo desde el último utilizado
+
+\end{itemize}
+\end{appendices}
+%--------------------------------------------------------------------------
+\end{document}
