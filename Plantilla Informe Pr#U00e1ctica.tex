@@ -95,6 +95,7 @@
 }
 %Modificaciones a la tabla de contenidos.
 \makeatletter
+\def\numberSpaceChapter #1{#1.\enskip}
 %Esto se encarga que los capítulos tengan puntos en su tab leader.
 \renewcommand*\l@chapter[2]{%
   \ifnum \c@tocdepth >\m@ne
@@ -186,7 +187,9 @@ Septiembre, 2014
 %--------------------------------------------------------------------------
 % Esta es la TABLA DE CONTENIDO.
 \tableofcontents
-\addtocontents{toc}{~\hfill\textbf{Página}\par}
+\addtocontents{toc}{\let\protect\numberline\protect\numberSpaceChapter}
+%\addtocontents{toc}{~\hfill\textbf{Página}\par}
+
 %DESCOMENTAR LA LINEA SIGUIENTE SI ES QUE LA TABLA DE CONTENIDOS TIENE MAS DE UNA PAGINA.
 %\addtocontents{toc}{\protect\afterpage{~\hfill\textbf{Página}\par\medskip}}
 \thispagestyle{plain}
